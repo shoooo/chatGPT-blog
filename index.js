@@ -1,41 +1,33 @@
-// const AWS = require('aws-sdk');
-const { Client } = require('@notionhq/client');
-const { Configuration, OpenAIApi  } = require('openai');
-require('dotenv').config();
-const { generateBlogTopics } = require("./config/gpt");
-
-// const notion = new Client({ auth: process.env.NOTION_API_TOKEN });
-// const configuration = new Configuration({
-//     apiKey: process.env.OPENAI_API_KEY,
-// });
-// const openai = new OpenAIApi(configuration);
+const { generateBlogTopics, writeBlogPost } = require("./config/gpt");
+const { insertTopicsIntoNotionDatabase, monitorStatusChanges, insertBlogPostIntoPage } = require("./config/notion");
 
 const generateBlogPosts = async (event, context) => {
   try {
-    // Step 1: Generate 10 article titles and outlines
-    // const topics = await generateBlogTopics();
-    // console.log(topics);
+    // Step 1: Generate 5 article titles
+    // better trimming needed
+    const topics = await generateBlogTopics();
+    // Step 2: Add each title as a new page in Notion database
+    insertTopicsIntoNotionDatabase(topics)
 
-    // // Step 2: Add each title and outline as a new page in Notion database
-    // const databaseId = process.env.NOTION_DATABASE_ID;
-    // const createdPages = await Promise.all(
-    //   titlesAndOutlines.map(async (titleAndOutline) => {
-    //     const newPage = {
-    //       properties: {
-    //         Title: { title: [{ text: { content: titleAndOutline.title } }] },
-    //         Outline: { rich_text: [{ text: { content: titleAndOutline.outline } }] },
-    //         Status: { select: { name: '下書き' } },
-    //       },
-    //     };
-    //     return notion.pages.create({ parent: { database_id: databaseId }, properties: newPage.properties });
-    //   })
-    // );
+    // Step 3: Monitor for changes in status and generate blog post if status is confirmed
+    const confirmedPages = await monitorStatusChanges();
+    const pages = confirmedPages.results
 
-    // console.log(`${createdPages.length} pages created in Notion database`);
+    for (const page of pages) {
+      const title = page.properties.タイトル.title[0].plain_text;
+      const page_id = page.id
+      const post = await writeBlogPost(title)
+      console.log(post);
 
-    // // Step 3: Monitor for changes in status and generate blog post if status is confirmed
-    // const pageIds = createdPages.map((page) => page.id);
-    // await monitorStatusChanges(pageIds);
+      // Step 4: Update page status to "Published" and add blog post to page
+      // need to get block id for this
+      // await insertBlogPostIntoPage(page_id, post);
+    }
+
+    // Step 5: Once again, monitor for changes in status and generate instagram post if status is confirmed
+    // Using title and outline/description?, generate image (text and unsplash) and caption, then schedule on buffer
+
+
   } catch (error) {
     console.error(error);
   }
