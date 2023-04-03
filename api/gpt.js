@@ -1,5 +1,6 @@
 const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
+const { removeNumberedPrefixes } = require("../config/truncate");
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
@@ -11,17 +12,18 @@ const model = 'gpt-3.5-turbo';
 // Step 1: Generate 10 article titles
 async function generateBlogTopics() {
     const prompt = "トレンドや話題、製品レビューや比較記事、リスト型記事、オピニオンや議論、チュートリアルやハウツー記事。それぞれの項目でストリートダンス関連のおすすめのタイトルを1つずつ教えて";
-    const response = await openai.createChatCompletion ({
+    const response = await openai.createChatCompletion({
         model: model,
-        messages: [{role: "assistant", content: prompt}],
+        messages: [{ role: "assistant", content: prompt }],
         // max_tokens: 200,
         n: 1,
         stop: null,
         temperature: 1,
     });
 
-    const topics = response.data.choices[0].message.content.split('\n').filter(t => t.trim() !== '');
-    return topics;
+    const inputText = response.data.choices[0].message.content.split('\n').filter(t => t.trim() !== '');
+    const topics = removeNumberedPrefixes(inputText)
+    return topics
 }
 
 async function writeBlogPost(topic) {
@@ -38,9 +40,9 @@ async function writeBlogPost(topic) {
     
     #タイトル：${topic}`;
 
-    const response = await openai.createChatCompletion ({
+    const response = await openai.createChatCompletion({
         model: model,
-        messages: [{role: "assistant", content: prompt}],
+        messages: [{ role: "assistant", content: prompt }],
         // max_tokens: 200,
         n: 1,
         stop: null,
@@ -55,12 +57,12 @@ async function createInstagramPost() {
     // Generate caption and hashtags
     const prompt = "Generate a caption and hashtags for an Instagram post about technology.";
     const response = await openai.complete({
-      engine: model,
-      prompt: prompt,
-      max_tokens: 50,
-      n: 1,
-      stop: null,
-      temperature: 0.8,
+        engine: model,
+        prompt: prompt,
+        max_tokens: 50,
+        n: 1,
+        stop: null,
+        temperature: 0.8,
     });
 
     const caption = response.choices[0].text;
@@ -72,6 +74,6 @@ async function createInstagramPost() {
     const text = "Technology";
 
     return { imageUrl, text, caption };
-  }
+}
 
-module.exports = {generateBlogTopics, writeBlogPost, createInstagramPost}
+module.exports = { generateBlogTopics, writeBlogPost, createInstagramPost }

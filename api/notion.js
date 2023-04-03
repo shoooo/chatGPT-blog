@@ -24,8 +24,6 @@ async function insertTopicsIntoNotionDatabase(topics) {
 
 async function monitorStatusChanges() {
   const databaseId = process.env.NOTION_DATABASE_ID;
-  // const pages = await notion.pages.retrieve({ page_id: pageIds, properties: ['ステータス'] });
-  // const confirmedPages = pages.filter((page) => page.properties.ステータス.status.name === 'Topic checked');
 
   const confirmedPages = await notion.databases.query({
     database_id: databaseId,
@@ -41,8 +39,25 @@ async function monitorStatusChanges() {
 }
 
 const insertBlogPostIntoPage = async (page_id, post) => {
+  const response = await notion.blocks.children.append({
+    block_id: page_id,
+    children: [{
+        "paragraph": {
+          "rich_text": [
+            {
+              "text": {
+                "content": post
+              }
+            }
+          ]
+        }
+      }]
+  });
+  console.log(response);
+
   const properties = {
-    ステータス: { status: { name: 'Under check' } },
+    ステータス: { status: { name: 'Writing' } },
+    サムネイル: { file: { url: thumbnailURL } },
   };
 
   await notion.pages.update({ page_id: page_id, properties: properties });
