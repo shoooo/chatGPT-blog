@@ -15,35 +15,42 @@ async function generateBlogTopics() {
     const response = await openai.createChatCompletion({
         model: model,
         messages: [{ role: "assistant", content: prompt }],
-        // max_tokens: 200,
         n: 1,
         stop: null,
         temperature: 1,
     });
 
     const inputText = response.data.choices[0].message.content.split('\n').filter(t => t.trim() !== '');
-    const topics = removeNumberedPrefixes(inputText)
-    return topics
+    // console.log(inputText);
+    // const topics = removeNumberedPrefixes(inputText)
+    return inputText
 }
 
 async function writeBlogPost(topic) {
     // add tag and create thumbnail using unsplash?? how do i let the system choose the right image
-    const prompt = `#命令書
-    あなたはプロのブログライターです。以下の制約条件とタイトルから最高ブログ記事を出力してください。
-    
-    #制限条件：
-    - 事実に基づいて
-    - 文字数は3000文字程度
-    - 小学生にもわかりやすくフレンドリーな文体
-    - 「ー」などを活用した崩した文体
-    - Notionの記述方法、目次の追加
-    
-    #タイトル：${topic}`;
+    const prompt = `#命令書：
+    あなたはプロのブログライターです。以下の制約条件から最高のブログを出力してください。`;
+
+    const rule = `#制約条件：
+    - 2000文字程度で書いて
+    - 小学生にもわかりやすく書いて
+    - フレンドリーな文体で書いて
+    - 「ー」などを活用した崩した文体で書いて
+    - Notionの記述方法で
+    - 見出しを付けて書いて
+    - 目次を付けて`
+
+    const input = `#タイトル：${topic}`;
 
     const response = await openai.createChatCompletion({
         model: model,
-        messages: [{ role: "assistant", content: prompt }],
+        messages: [
+            { role: "system", content: prompt },
+            { role: "system", content: rule },
+            { role: "system", content: input },
+    ],
         // max_tokens: 200,
+        temperature: 0.8,
         n: 1,
         stop: null,
         temperature: 0.8,

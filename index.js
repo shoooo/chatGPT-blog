@@ -15,13 +15,8 @@ const generateBlogPosts = async (event, context) => {
 
     for (const page of pages) {
       const title = page.properties.タイトル.title[0].plain_text;
-      const page_id = pagse.id
+      const page_id = page.id
       const post = await writeBlogPost(title)
-      console.log(post);
-
-      // Step 4: Get image from unsplash for thumbnail. Probably create instagram type post here as well?
-
-      // is it better to call the unsplash function here and add the property on notion with another function? what are the other 
 
       // Step 5: Update page status to "Writing" and add blog post to page
       await insertBlogPostIntoPage(page_id, post);
@@ -29,8 +24,6 @@ const generateBlogPosts = async (event, context) => {
 
     // Step 5: Once again, monitor for changes in status and generate instagram post if status is confirmed
     // Using title and outline/description?, generate image (text and unsplash) and caption, then schedule on buffer
-
-
   } catch (error) {
     console.error(error);
   }
@@ -39,4 +32,4 @@ const generateBlogPosts = async (event, context) => {
 generateBlogPosts();
 
 // itll be on lambda at the end which gets called once every day
-// possible issues: posts not high quality -> improve prompt, needs fact check -> use another GPT or I check by myself, 
+// possible issues: posts not high quality -> improve prompt, needs fact check -> use another GPT or I check by myself,

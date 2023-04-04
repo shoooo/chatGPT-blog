@@ -5,17 +5,17 @@ const unsplash = createApi({
     accessKey: process.env.UNSPLASH_API_KEY,
 });
 
-const getThumbnailPhoto = () => {
+const getThumbnailPhoto = (query) => {
     unsplash.search.getPhotos({
-        query: 'cat',
-        page: 1,
-        perPage: 1,
+        query: query,
+        // page: 1,
+        // perPage: 1,
         orientation: 'landscape',
     }).then(result => {
         if (result.errors) {
             console.log(result.errors[0])
         } else {
-            const thumbnail = result.response
+            const thumbnail = result.response.results[0].urls.thumb
             console.log(thumbnail)
         }
     })

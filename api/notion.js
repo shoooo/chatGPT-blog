@@ -1,5 +1,6 @@
 const { Client } = require('@notionhq/client');
 require('dotenv').config();
+const { getThumbnailPhoto } = require("../api/unsplash");
 
 const notion = new Client({ auth: process.env.NOTION_API_TOKEN });
 
@@ -39,28 +40,37 @@ async function monitorStatusChanges() {
 }
 
 const insertBlogPostIntoPage = async (page_id, post) => {
-  const response = await notion.blocks.children.append({
+  await notion.blocks.children.append({
     block_id: page_id,
     children: [{
-        "paragraph": {
-          "rich_text": [
-            {
-              "text": {
-                "content": post
-              }
+      "paragraph": {
+        "rich_text": [
+          {
+            "text": {
+              "content": post
             }
-          ]
-        }
-      }]
+          }
+        ]
+      }
+    }]
   });
-  console.log(response);
+
+  const keyword = 'dance'
+  const num = Math.floor(Math.random() * 5000) + 1;
+  const thumbnailURL = `https://source.unsplash.com/random/?${keyword}&${num}`;
 
   const properties = {
     ステータス: { status: { name: 'Writing' } },
-    サムネイル: { file: { url: thumbnailURL } },
   };
 
-  await notion.pages.update({ page_id: page_id, properties: properties });
+  const cover = {
+    "type": "external",
+    "external": {
+      "url": thumbnailURL,
+    }
+  };
+
+  await notion.pages.update({ page_id: page_id, properties: properties, cover: cover });
 }
 
 module.exports = { insertTopicsIntoNotionDatabase, monitorStatusChanges, insertBlogPostIntoPage }
