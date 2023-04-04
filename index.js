@@ -2,12 +2,12 @@ const { generateBlogTopics, writeBlogPost } = require("./api/gpt");
 const { insertTopicsIntoNotionDatabase, monitorStatusChanges, insertBlogPostIntoPage } = require("./api/notion");
 const { getThumbnailPhoto } = require("./api/unsplash");
 
-const generateBlogPosts = async (event, context) => {
+exports.handler = async (event) => {
   try {
     // Step 1: Generate 5 article titles
-    // const topics = await generateBlogTopics();
+    const topics = await generateBlogTopics();
     // Step 2: Add each title as a new page in Notion database
-    // insertTopicsIntoNotionDatabase(topics)
+    insertTopicsIntoNotionDatabase(topics)
 
     // Step 3: Monitor for changes in status and generate blog post if status is confirmed
     const confirmedPages = await monitorStatusChanges();
@@ -28,8 +28,6 @@ const generateBlogPosts = async (event, context) => {
     console.error(error);
   }
 };
-
-generateBlogPosts();
 
 // itll be on lambda at the end which gets called once every day
 // possible issues: posts not high quality -> improve prompt, needs fact check -> use another GPT or I check by myself,
