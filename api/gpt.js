@@ -28,8 +28,7 @@ async function generateBlogTopics() {
 
 async function writeBlogPost(topic) {
     // add tag and create thumbnail using unsplash?? how do i let the system choose the right image
-    const prompt = `#命令書：
-    あなたはプロのブログライターです。以下の制約条件から最高のブログを出力してください。`;
+    const prompt = `${process.env.GPT_PROMPT}`
 
     const rule = `#制約条件：
     - 2000文字程度で書いて
@@ -53,9 +52,9 @@ async function writeBlogPost(topic) {
         temperature: 0.8,
         n: 1,
         stop: null,
-        temperature: 0.8,
     });
 
+    console.log(`${response.data.choices.length} posts created`);
     const post = response.data.choices[0].message.content;
     return post;
 }

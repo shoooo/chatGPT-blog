@@ -1,7 +1,7 @@
 const { generateBlogTopics, writeBlogPost } = require("./api/gpt");
 const { insertTopicsIntoNotionDatabase, monitorStatusChanges, insertBlogPostIntoPage } = require("./api/notion");
-const { getThumbnailPhoto } = require("./api/unsplash");
 
+// const run = async (event) => {
 exports.handler = async (event) => {
   try {
     // Step 1: Generate 5 article titles
@@ -24,10 +24,18 @@ exports.handler = async (event) => {
 
     // Step 5: Once again, monitor for changes in status and generate instagram post if status is confirmed
     // Using title and outline/description?, generate image (text and unsplash) and caption, then schedule on buffer
+
+    return "done";
   } catch (error) {
-    console.error(error);
+    return error;
   }
 };
 
+
+function run () {
+  const prompt = `${process.env.GPT_PROMPT}`;
+  console.log(prompt)
+}
+run();
 // itll be on lambda at the end which gets called once every day
 // possible issues: posts not high quality -> improve prompt, needs fact check -> use another GPT or I check by myself,

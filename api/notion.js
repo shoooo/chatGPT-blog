@@ -35,6 +35,7 @@ async function monitorStatusChanges() {
       }
     }
   });
+  console.log(`${confirmedPages.results.length} confirmed pages found in Notion database`);
 
   return confirmedPages
 }
